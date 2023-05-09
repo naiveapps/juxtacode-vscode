@@ -1,0 +1,111 @@
+{
+  "name": "juxtacode",
+  "displayName": "JuxtaCode",
+  "description": "View commit history and resolve merge conflicts.",
+  "version": "1.0.0",
+  "publisher": "YoriMihalakopoulos",
+  "homepage": "https://juxtacode.app",
+  "bugs": {
+    "email": "support@naiveapps.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/naiveapps/juxtacode-vscode"
+  },
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "merge",
+    "mergetool",
+    "git",
+    "history",
+    "conflict"
+  ],
+  "icon": "img/icon.png",
+  "galleryBanner": {
+    "color": "#FFFFFF",
+    "theme": "light"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "juxtacode.openRepository",
+        "title": "Open Repository in JuxtaCode"
+      },
+      {
+        "command": "juxtacode.mergeFile",
+        "title": "Resolve with JuxtaCode",
+        "icon": {
+          "light": "./img/JuxtaCodeConflictLight.svg",
+          "dark": "./img/JuxtaCodeConflictDark.svg"
+        }
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "isMac && resourcePath in juxtacode.conflictedFiles",
+          "command": "juxtacode.mergeFile",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "isMac && resourcePath in juxtacode.conflictedFiles",
+          "command": "juxtacode.mergeFile",
+          "group": "navigation"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "when": "isMac && scmProvider == git && scmResourceGroup == merge",
+          "command": "juxtacode.mergeFile",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "deploy": "vsce publish --target darwin-x64 darwin-arm64"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.19.0",
+    "eslint": "^8.39.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "simple-git": "^3.18.0"
+  },
+  "extensionDependencies": [
+    "vscode.git"
+  ],
+  "extensionKind": [
+    "ui"
+  ]
+}
