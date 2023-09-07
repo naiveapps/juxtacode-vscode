@@ -18,8 +18,10 @@ export class Commands {
 			this._openJuxtaCode();
 		});
 
-        let mergeFiles = vscode.commands.registerCommand('juxtacode.mergeFile', () => {
-            this._mergeFile();
+        let mergeFiles = vscode.commands.registerCommand('juxtacode.mergeFile', (...resourceStates: [vscode.SourceControlResourceState]) => {
+            for (let resourceState of resourceStates) {
+                this._mergeFile(resourceState.resourceUri.fsPath);
+            }
         });
 
         this._context.subscriptions.push(openRepository);
@@ -46,18 +48,7 @@ export class Commands {
         return false;
     }
 
-    private _getCurrentFilePath(): string | undefined {
-        let currentDocument = vscode.window.activeTextEditor?.document;
-        if (currentDocument) {
-            let currentWorkspaceFolder = vscode.workspace.getWorkspaceFolder(currentDocument.uri);
-            if (currentWorkspaceFolder && this._isGitRepository(currentWorkspaceFolder)) {
-                return currentDocument.uri.fsPath;
-            }
-        }
-        return undefined;
-    }
-
-    private _getCurrentRepositoryPath(): string | undefined {
+     private _getCurrentRepositoryPath(): string | undefined {
         let currentDocument = vscode.window.activeTextEditor?.document;
         if (currentDocument) {
             let currentWorkspaceFolder = vscode.workspace.getWorkspaceFolder(currentDocument.uri);
@@ -94,42 +85,17 @@ export class Commands {
         }
     }
 
-    private _mergeFile() {
+    private _mergeFile(filePath: string) {
         if (!this._checkForMacOS()) {
             return;
         }
 
         let repositoryPath = this._getCurrentRepositoryPath();
-        let filePath = this._getCurrentFilePath();
-        if (filePath && repositoryPath) {
-            
-            const cmd = 'open -b com.naiveapps.juxtacode.driver "' + repositoryPath + '"';
+        if (repositoryPath) {
+            const uri = 'https://ulinks.juxtacode.app/merge' + filePath + '?repo=' + repositoryPath + '&bundleID=com.microsoft.VSCode';
+            const cmd = 'open -b com.naiveapps.juxtacode "' + encodeURI(uri) + '"';
+
             child_process.exec(cmd);
-
-            const script = 'tell application id "com.naiveapps.juxtacode"\n' +
-            '  with timeout of 18000 seconds\n' +
-            'merge "' + filePath + '" in "' + repositoryPath + '"\n' +
-            '  end timeout\n' +
-            'end tell';
-
-            child_process.exec(`osascript -e '${script}'`, (error, stdout, stderr) => {
-                if (stderr) {
-                    // Check error code in parens at end of first line
-                    const match = stderr.match(/\((-?\d+)\)\s*$/m);
-                    if (match && match.length > 1) {
-                        const errorCode = match[1];
-                        if (errorCode === '-1712') {
-                            return; // Timed out. Do nothing.
-                        }
-                    }
-                    vscode.window.showErrorMessage('Could not open JuxtaCode.');
-                }
-
-                const activateScript = 'tell application "Visual Studio Code" to activate';
-                child_process.exec(`osascript -e '${activateScript}'`);
-            });
-        } else {
-            vscode.window.showErrorMessage('Could not determine the repository path for the current file.');
         }
     }
 }
