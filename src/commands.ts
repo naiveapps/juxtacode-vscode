@@ -7,34 +7,38 @@ import * as fs from 'fs';
 export class Commands {
     private _context: vscode.ExtensionContext;
 
-    constructor(
-		context: vscode.ExtensionContext,
-	) {
-		this._context = context;
-	}
+        constructor(
+    		context: vscode.ExtensionContext,
+    	) {
+    		this._context = context;
+    	}
 
-    init() {
-		let openRepository = vscode.commands.registerCommand('juxtacode.openRepository', () => {
-			this._openJuxtaCode();
-		});
+        init() {
+            let openRepository = vscode.commands.registerCommand('juxtacode.openRepository', () => {
+                this._openJuxtaCode();
+            });
 
-        let mergeFiles = vscode.commands.registerCommand('juxtacode.mergeFile', (...resourceStates: [vscode.SourceControlResourceState]) => {
-            for (let resourceState of resourceStates) {
-                this._mergeFile(resourceState.resourceUri.fsPath);
-            }
-        });
+            vscode.commands.registerCommand('juxtacode.mergeFile', (...resourceStates: [vscode.SourceControlResourceState | vscode.Uri]) => {
+                for (let resourceState of resourceStates) {
+                    let uri = resourceState instanceof vscode.Uri ? resourceState : resourceState.resourceUri;
+                    if (uri && uri.fsPath) {
+                        let filePath = uri.fsPath;
+                        this._mergeFile(filePath);
+                    }
+                }
+            });
 
-        this._context.subscriptions.push(openRepository);
-    }
-
-    private _checkForMacOS(): boolean {
-        if (process.platform === 'darwin') {
-            return true;
-        } else {
-            vscode.window.showErrorMessage('JuxtaCode is only available on macOS.');
-            return false;
+            this._context.subscriptions.push(openRepository);
         }
-    }
+
+        private _checkForMacOS(): boolean {
+            if (process.platform === 'darwin') {
+                return true;
+            } else {
+                vscode.window.showErrorMessage('JuxtaCode is only available on macOS.');
+                return false;
+            }
+        }
 
     private _isGitRepository(workspace: vscode.WorkspaceFolder): boolean {
         const uri = workspace.uri;

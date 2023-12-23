@@ -2,7 +2,7 @@
   "name": "juxtacode",
   "displayName": "JuxtaCode",
   "description": "View commit history and resolve merge conflicts.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "YoriMihalakopoulos",
   "homepage": "https://juxtacode.app",
   "bugs": {
