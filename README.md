@@ -33,6 +33,10 @@ There are currently no known issues with this extension.
 
 ## Release Notes
 
+### 1.1.1
+
+Fixes a bug where merge tool would not open unless using the context menu from the source control section.
+
 ### 1.1.0
 
 Switches to using universal links rather than AppleScript to communicate with JuxtaCode.
